@@ -34,31 +34,36 @@ resource "digitalocean_droplet" "workstation" {
     private_key = file(var.pvt_key)
   }
 
-  # provisioner "remote-exec" {
-  #   script = "./ansibleubuntu.sh"
-  # }
-
-  # provisioner "file" {
-  #   source = var.pvt_key
-  #   destination = "tf-master"
-  # }
-
-  # provisioner "file" {
-  #   source = var.pub_key
-  #   destination = "tf-master.pub"
-  # }
+  provisioner "remote-exec" {
+    script = "./ansibleubuntu.sh"
+  }
 
   provisioner "file" {
-    content = templatefile("hosts.tpl", { ipv4_addrs = {
-      for droplet in digitalocean_droplet.web:
-      droplet.name => droplet.ipv4_address
+    source = var.pvt_key
+    destination = "tf-master"
+  }
+
+  provisioner "file" {
+    source = var.pub_key
+    destination = "tf-master.pub"
+  }
+
+  provisioner "file" {
+    content = templatefile("hosts.tpl", { 
+      names = {
+        for droplet in digitalocean_droplet.web:
+        droplet.name => droplet.name
+      },
+      ipv4_addrs = {
+        for droplet in digitalocean_droplet.web:
+        droplet.name => droplet.ipv4_address
     }})
-    destination = "hosts"
+    destination = "/etc/ansible/hosts"
   }
 }
 
 resource "digitalocean_droplet" "web" {
-  count = 3
+  count = 1
   image = "ubuntu-20-04-x64"
   name = "web-${count.index}"
   region = "sfo3" 
