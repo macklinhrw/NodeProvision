@@ -3,6 +3,7 @@
 *.lock
 *.hcl
 *.backup
+*.info
 tf-master
 tf-master.pub
 .terraform

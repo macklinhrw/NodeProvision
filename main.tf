@@ -34,10 +34,6 @@ resource "digitalocean_droplet" "workstation" {
     private_key = file(var.pvt_key)
   }
 
-  provisioner "remote-exec" {
-    script = "./ansibleubuntu.sh"
-  }
-
   provisioner "file" {
     source = var.pvt_key
     destination = "tf-master"
@@ -46,6 +42,21 @@ resource "digitalocean_droplet" "workstation" {
   provisioner "file" {
     source = var.pub_key
     destination = "tf-master.pub"
+  }
+
+  provisioner "file" {
+    source = "apache-install.yml"
+    destination = "apache-install.yml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt -y install software-properties-common",
+      "sudo add-apt-repository --yes --update ppa:ansible/ansible",
+      "sudo apt -y install ansible",
+      "chmod 600 ${var.pvt_key}",
+      "chmod 600 ${var.pub_key}",
+    ]
   }
 
   provisioner "file" {
@@ -60,10 +71,16 @@ resource "digitalocean_droplet" "workstation" {
     }})
     destination = "/etc/ansible/hosts"
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u root --private-key ${var.pvt_key} -e 'pub_key=${var.pub_key}' apache-install.yml"
+    ]
+  }
 }
 
 resource "digitalocean_droplet" "web" {
-  count = 1
+  count = 5
   image = "ubuntu-20-04-x64"
   name = "web-${count.index}"
   region = "sfo3" 
