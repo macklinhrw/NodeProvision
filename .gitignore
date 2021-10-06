@@ -1,0 +1,8 @@
+*.tfvars
+*.tfstate
+*.lock
+*.hcl
+*.backup
+tf-master
+tf-master.pub
+.terraform
