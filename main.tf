@@ -80,7 +80,7 @@ resource "digitalocean_droplet" "workstation" {
 }
 
 resource "digitalocean_droplet" "web" {
-  count = 5
+  count = 3
   image = "ubuntu-20-04-x64"
   name = "web-${count.index}"
   region = "sfo3" 

@@ -1,3 +1,5 @@
+Note: Currently only provisions apache.
+
 # Introduction
 
 This is a repo of scripts designed to set up number of client droplets, and to run an ansible playbook
